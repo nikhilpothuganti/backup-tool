@@ -9,12 +9,19 @@ A command-line tool for backing up files with optional encryption.
 git clone https://github.com/sprixter/version-control-system.git
 cd version-control-system
 ```
-2. Build the executable :
+
+2. Make it a go module :
+
+```bash
+go init module version-control-system
+```
+
+4. Build the executable :
 
 ```bash
 go build -o vcs
 ```
-3. Run the CLI tool :
+4. Run the CLI tool :
 
 ```bash
 ./vcs -source=/your/source/directory
