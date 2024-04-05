@@ -21,6 +21,7 @@ go init module version-control-system
 ```bash
 go build -o vcs
 ```
+
 4. Run the CLI tool :
 
 ```bash
@@ -38,7 +39,7 @@ Usage of ./vcs:
   -source string
     	Source directory to backup. (default ".")
   -update-backup-dir
-    	Update configuration parameters.
+    	Update backup directory.
 ```
 
 ### Encrypt files
