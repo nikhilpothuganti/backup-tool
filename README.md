@@ -6,7 +6,7 @@ A command-line tool for backing up files with optional encryption.
 1. Clone the repository :
 
 ```bash
-git clone https://github.com/sprixte/version-control-system.git
+git clone https://github.com/sprixter/version-control-system.git
 cd version-control-system
 ```
 2. Build the executable :
