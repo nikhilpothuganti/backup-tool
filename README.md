@@ -16,7 +16,7 @@ cd version-control-system
 go init module version-control-system
 ```
 
-4. Build the executable :
+3. Build the executable :
 
 ```bash
 go build -o vcs
