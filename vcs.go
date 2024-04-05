@@ -4,6 +4,8 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -40,7 +42,7 @@ func saveConfig(config *Config, configFile string) error {
 	return os.WriteFile(configFile, data, 0644)
 }
 
-// encrypts a given byte slice using the AES encryption
+// encrypts a given byte slice using AES encryption
 func encrypt(data []byte, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -57,6 +59,22 @@ func encrypt(data []byte, key []byte) ([]byte, error) {
 	stream.XORKeyStream(ciphertext[aes.BlockSize:], data)
 
 	return ciphertext, nil
+}
+
+// calculates sha256 checksum for a file
+func calculateHash(filePath string) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	hash := sha256.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
 func main() {
@@ -114,52 +132,118 @@ func main() {
 				return err
 			}
 		} else {
-			srcFile, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			defer srcFile.Close()
-			if *encryptFlag {
-				// Encrypt file
-				data, err := io.ReadAll(srcFile)
-				if err != nil {
-					return err
-				}
-				encryptedData, err := encrypt(data, key)
-				if err != nil {
-					return err
-				}
+			if _, err := os.Stat(destPath); os.IsNotExist(err) {
+				if *encryptFlag {
+					srcFile, err := os.Open(path)
+					if err != nil {
+						return err
+					}
+					defer srcFile.Close()
+					data, err := io.ReadAll(srcFile)
+					if err != nil {
+						return err
+					}
+					// encrypt file
+					encryptedData, err := encrypt(data, key)
+					if err != nil {
+						return err
+					}
+					destFile, err := os.Create(destPath)
+					if err != nil {
+						return err
+					}
+					defer destFile.Close()
+					_, err = destFile.Write(encryptedData)
+					if err != nil {
+						return err
+					}
+					log.Printf("Encrypted and copied %s to %s\n", path, destPath)
 
-				destFile, err := os.Create(destPath)
-				if err != nil {
-					return err
+				} else {
+					// Copy file without encryption
+					srcFile, err := os.Open(path)
+					if err != nil {
+						return err
+					}
+					defer srcFile.Close()
+					destFile, err := os.Create(destPath)
+					if err != nil {
+						return err
+					}
+					defer destFile.Close()
+					_, err = io.Copy(destFile, srcFile)
+					if err != nil {
+						return err
+					}
+					log.Printf("Copied %s to %s\n", path, destPath)
 				}
-				defer destFile.Close()
-				_, err = destFile.Write(encryptedData)
-				if err != nil {
-					return err
-				}
-				log.Printf("Encrypted and copied %s to %s\n", path, destPath)
 
 			} else {
-				// Copy file without encryption
-				destFile, err := os.Create(destPath)
+				srcChecksum, err := calculateHash(path)
 				if err != nil {
+					fmt.Println(err)
 					return err
 				}
-				defer destFile.Close()
-				_, err = io.Copy(destFile, srcFile)
+
+				dstChecksum, err := calculateHash(destPath)
 				if err != nil {
+					fmt.Println(err)
 					return err
 				}
-				log.Printf("Copied %s to %s\n", path, destPath)
+				if srcChecksum != dstChecksum {
+					if *encryptFlag {
+						srcFile, err := os.Open(path)
+						if err != nil {
+							return err
+						}
+						defer srcFile.Close()
+						data, err := io.ReadAll(srcFile)
+						if err != nil {
+							return err
+						}
+						// encrypt file
+						encryptedData, err := encrypt(data, key)
+						if err != nil {
+							return err
+						}
+						destFile, err := os.Create(destPath)
+						if err != nil {
+							return err
+						}
+						defer destFile.Close()
+						_, err = destFile.Write(encryptedData)
+						if err != nil {
+							return err
+						}
+						log.Printf("Encrypted and copied %s to %s\n", path, destPath)
+
+					} else {
+						// Copy file without encryption
+						srcFile, err := os.Open(path)
+						if err != nil {
+							return err
+						}
+						defer srcFile.Close()
+						destFile, err := os.Create(destPath)
+						if err != nil {
+							return err
+						}
+						defer destFile.Close()
+						_, err = io.Copy(destFile, srcFile)
+						if err != nil {
+							return err
+						}
+						log.Printf("Copied %s to %s\n", path, destPath)
+					}
+				}
 			}
 		}
 		return nil
 	})
 
 	if err != nil {
-		log.Fatalf("Error copying files: %v", err)
+		log.Fatalf("Error walking through source directory")
+		return
 	}
 
 	fmt.Printf("Backup completed.")
