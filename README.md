@@ -67,7 +67,7 @@ The tool reads its configuration from a JSON file (config.json by default). The 
 
 ```json
 {
-  "backupRoot": "/path/to/backup/root"
+  "backupRoot": "/your/backup/directory"
 }
 ```
 Edit the config.json file to suitable backup directory before running the code.
