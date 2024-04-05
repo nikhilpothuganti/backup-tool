@@ -24,8 +24,16 @@ go build -o vcs
 
 4. Run the CLI tool :
 
+For Mac and Linux Users :
+
 ```bash
 ./vcs -source=<source_directory>
+```
+
+For Windows Users :
+
+```bash
+./vcs.exe -source=<source_directory>
 ```
 
 ## Usage
