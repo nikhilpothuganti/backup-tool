@@ -25,7 +25,7 @@ go build -o vcs
 4. Run the CLI tool :
 
 ```bash
-./vcs -source=/your/source/directory
+./vcs -source=<source_directory>
 ```
 
 ## Usage
@@ -46,7 +46,7 @@ Usage of ./vcs:
 To enable encryption while backing up files :
 
 ```bash
-  ./vcs -encrypt=true
+  ./vcs -encrypt=<true/false>
 ```
 
 ### Change Backup Directory
