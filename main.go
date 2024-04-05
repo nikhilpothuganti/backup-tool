@@ -80,7 +80,6 @@ func calculateHash(filePath string) (string, error) {
 func main() {
 	configFile := "config.json"
 	sourceDir := flag.String("source", ".", "Source directory to backup")
-	flag.StringVar(&configFile, "config", configFile, "Path to the configuration file.")
 	updateConfig := flag.Bool("update-backup-dir", false, "Update configuration parameters.")
 	encryptFlag := flag.Bool("encrypt", false, "Enable encryption.")
 	flag.Parse()
