@@ -6,14 +6,14 @@ A command-line tool for backing up files with optional encryption.
 1. Clone the repository :
 
 ```bash
-git clone https://github.com/sprixter/version-control-system.git
-cd version-control-system
+git clone https://github.com/nikhilpothuganti/backup-tool.git
+cd backup-tool
 ```
 
 2. Make it a go module :
 
 ```bash
-go init module version-control-system
+go init module backup-tool
 ```
 
 3. Build the executable :
